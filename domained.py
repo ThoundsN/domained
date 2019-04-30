@@ -74,9 +74,7 @@ def get_args():
     return parser.parse_args()
 
 
-newpath = r"output"
-if not os.path.exists(newpath):
-    os.makedirs(newpath)
+
 
 
 def banner():
@@ -486,6 +484,9 @@ if __name__ == "__main__":
     banner()
     args = get_args()
     domain = args.domain
+    newpath = domain
+    if not os.path.exists(newpath):
+        os.makedirs(newpath)
     output_base = "output/{}".format(domain)
     script_path = os.path.dirname(os.path.realpath(__file__))
     secure = args.secure
