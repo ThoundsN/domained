@@ -435,7 +435,7 @@ def options():
                 sublist3r()
             else:
                 sublist3r()
-                enumall()
+                # enumall()
                 amass()
                 subfinder()
                 subdomainfile()
