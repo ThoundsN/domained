@@ -109,6 +109,8 @@ def banner():
             print("\n\nStarting domained...")
 
 
+
+
 def sublist3r(brute=False):
     print("\n\n\033[1;31mRunning Sublist3r \n\033[1;37m")
     sublist3rFileName = "{}_sublist3r.txt".format(output_base)
@@ -122,8 +124,6 @@ def sublist3r(brute=False):
     os.system(Subcmd)
     print("\n\033[1;31mSublist3r Complete\033[1;37m")
     time.sleep(1)
-    if brute:
-        eyewitness(sublist3rFileName)
 
 
 def enumall():
@@ -139,16 +139,22 @@ def enumall():
 
 def massdns():
     print("\n\n\033[1;31mRunning massdns \n\033[1;37m")
-    word_file = os.path.join(
-        script_path, "bin/sublst/all.txt" if bruteall else "bin/sublst/sl-domains.txt"
-    )
-    massdnsCMD = "python {} {} {} | {} -r resolvers.txt -t A -o S -w {}-massdns.txt".format(
-        os.path.join(script_path, "bin/subbrute/subbrute.py"),
-        word_file,
-        domain,
+    # word_file = os.path.join(
+    #     script_path, "bin/sublst/all.txt" if bruteall else "bin/sublst/sl-domains.txt"
+    # )
+    # massdnsCMD = "python {} {} {} | {} -r resolvers.txt -t A -o S -w {}-massdns.txt".format(
+    #     os.path.join(script_path, "bin/subbrute/subbrute.py"),
+    #     word_file,
+    #     domain,
+    #     os.path.join(script_path, "bin/massdns/bin/massdns"),
+    #     output_base,
+    # )
+
+    massdnsCMD = "{} -r resolvers.txt -t A -o S -w {}-massdns-ip.txt {}-unique.txt".format(
         os.path.join(script_path, "bin/massdns/bin/massdns"),
         output_base,
-    )
+        output_base
+        )
     print("\n\033[1;31mRunning Command: \033[1;37m{}".format(massdnsCMD))
     os.system(massdnsCMD)
     print("\n\033[1;31mMasscan Complete\033[1;37m")
@@ -158,7 +164,7 @@ def massdns():
 def knockpy():
     print("\n\n\033[1;31mRunning Knock \n\033[1;37m")
     knockpyCmd = "python {} -c {}".format(
-        os.path.join(script_path, "bin/knockpy/knockpy/knockpy.py"), domain
+        os.path.join(script_path, "bin/knockpy/knockpy.py"), domain
     )
     print("\n\033[1;31mRunning Command: \033[1;37m {}".format(knockpyCmd))
     os.system(knockpyCmd)
@@ -196,11 +202,35 @@ def amass():
 def subfinder():
     print("\n\n\033[1;31mRunning Subfinder \n\033[1;37m")
     subfinderFileName = "{}_subfinder.txt".format(output_base)
-    subfinderCmd = "~/go/bin/subfinder -d {} -o {}".format(domain, subfinderFileName)
+    word_file = os.path.join(
+        script_path, "bin/sublst/all.txt" if bruteall else "bin/sublst/sl-domains.txt"
+    )
+    subfinderCmd = "~/go/bin/subfinder -b -w {} -d {} -o {}".format(
+            domain,
+            word_file,
+             subfinderFileName)
     print("\n\033[1;31mRunning Command: \033[1;37m{}".format(subfinderCmd))
     os.system(subfinderCmd)
     print("\n\033[1;31msubfinder Complete\033[1;37m")
     time.sleep(1)
+
+def altdns(filename):
+    print("\n\n\033[1;31mRunning Altdns \n\033[1;37m")
+    altdnsFileName = "{}_altdns.txt".format(output_base)
+    altdnsCmd = "python {} -i {}  -w {}  -r -s {}".format(
+    os.path.join(script_path,"/bin/altdns/altdns.py"),
+        filename,
+        os.path.join(script_path,"/bin/altdns/words.txt"),
+        altdnsFileName
+    )
+    print("\n\033[1;31mRunning Command: \033[1;37m{}".format(altdnsCmd))
+    os.system(altdnsCmd)
+    print("\n\033[1;31mAltdns Complete\033[1;37m")
+    time.sleep(1)
+    
+def addingaltdns():
+    writeFiles(altdns)
+    allinone()
 
 
 def eyewitness(filename):
@@ -312,9 +342,10 @@ def writeFiles(name):
         "sublist3r": ".txt",
         "knock": ".csv.txt",
         "enumall": ".lst",
-        "massdns": ".txt",
+        # "massdns": ".txt",
         "amass": ".txt",
         "subfinder": ".txt",
+        "altdns":".txt"
     }
     fileName = output_base + "_" + name + fileExt[name]
 
@@ -336,13 +367,8 @@ def writeFiles(name):
     return subdomainCounter
 
 
-def subdomainfile():
+def allinone():
     subdomainAllFile = "{}-all.txt".format(output_base)
-    names = ["sublist3r", "knock", "enumall", "massdns", "amass", "subfinder"]
-
-    for name in names:
-        writeFiles(name)
-
     print("\nCombining Domains Lists\n")
     with open(subdomainAllFile, "r") as domainList:
         uniqueDomains = set(domainList)
@@ -360,15 +386,24 @@ def subdomainfile():
                     if ports is not False:
                         uniqueDomainsOut.writelines("http://{}:8080\n".format(domains))
     time.sleep(1)
-    rootdomainStrip = domain.replace(".", "_")
-    print("\nCleaning Up Old Files\n")
-    try:
-        os.system("rm {}*".format(domain))
-        os.system("rm {}*".format(rootdomainStrip))
-    except:
-        print("\nError Removing Files!\n")
-    if not noeyewitness:
-        eyewitness(subdomainUniqueFile)
+    # rootdomainStrip = domain.replace(".", "_")
+    # print("\nCleaning Up Old Files\n")
+    # try:
+    #     os.system("rm {}*".format(domain))
+    #     os.system("rm {}*".format(rootdomainStrip))
+    # except:
+    #     print("\nError Removing Files!\n")
+
+
+def subdomainfile():
+    names = ["sublist3r", "knock", "enumall", "amass", "subfinder"]
+
+    for name in names:
+        writeFiles(name)
+    allinone()
+
+
+
 
 
 def vpncheck():
@@ -385,72 +420,10 @@ def vpncheck():
         time.sleep(5)
 
 
-def notified():
-    notifySub = "domained Script Finished"
-    notifyMsg = "domained Script Finished for {}".format(domain)
-    Config = configparser.ConfigParser()
-    Config.read(os.path.join(script_path, "ext/notifycfg.ini"))
-    if (Config.get("Pushover", "enable")) == "True":
-        poToken = Config.get("Pushover", "token")
-        poUser = Config.get("Pushover", "user")
-        if "device" in Config.options("Pushover"):
-            poDevice = Config.get("Pushover", "device")
-            poRequestPayload = {
-                "token": poToken,
-                "user": poUser,
-                "device": poDevice,
-                "title": notifySub,
-                "message": notifyMsg,
-            }
-        else:
-            poRequestPayload = {
-                "token": poToken,
-                "user": poUser,
-                "title": notifySub,
-                "message": notifyMsg,
-            }
-            poValidatePayload = {"token": poToken, "user": poUser}
-            poValidate = requests.post(
-                "https://api.pushover.net/1/users/validate.json",
-                data=(poValidatePayload),
-            )
-            poJsonV = poValidate.json()
-            if poJsonV["status"] == 1:
-                print("\nPushover Account Validated\n")
-                poRequest = requests.post(
-                    "https://api.pushover.net/1/messages.json", data=(poRequestPayload)
-                )
-                poJsonR = poRequest.json()
-                if poJsonV["status"] == 1:
-                    print("\nPushover Account Notified\n")
-                else:
-                    print("\nError - Pushover Account Not Notified\n")
-            else:
-                print("\nError - Pushover Account Not Validated\n")
-    if (Config.get("Email", "enable")) == "True":
-        gmailUser = Config.get("Email", "user")
-        gmailPass = Config.get("Email", "password")
-        try:
-            server = smtplib.SMTP("smtp.gmail.com", 587)
-            server.starttls()
-            server.login(gmailUser, gmailPass)
-            subject = "domained Script Complete"
-            text = "domained Script Complete for " + domain
-            msg = "Subject: {}\n\n{}".format(subject, text)
-            server.sendmail(gmailUser, gmailUser, msg)
-            server.quit()
-            print("\nEmail Notification Sent\n")
-        except:
-            print("\nError - Email Notification Not Sent\n")
-
-
 def options():
+    subdomainUniqueFile = "{}-unique.txt".format(output_base)
     if vpn:
         vpncheck()
-    if fresh:
-        os.system("rm -r output")
-        newpath = r"output"
-        os.makedirs(newpath)
     if install:
         upgradeFiles()
     elif upgrade:
@@ -459,22 +432,18 @@ def options():
         if domain:
             if quick:
                 amass()
-                subfinder()
-            elif bruteforce:
-                massdns()
+                sublist3r()
+            else:
                 sublist3r()
                 enumall()
                 amass()
                 subfinder()
-            else:
-                sublist3r(True)
-                enumall()
-                knockpy()
-                amass()
-                subfinder()
-            subdomainfile()
-            if notify:
-                notified()
+                subdomainfile()
+                altdns(subdomainUniqueFile)
+                addingaltdns()
+            massdns()
+            if not noeyewitness:
+                eyewitness(subdomainUniqueFile)
         else:
             print("\nPlease provide a domain. Ex. -d example.com")
     print("\n\033[1;34mAll your subdomain are belong to us\033[1;37m")
@@ -487,7 +456,7 @@ if __name__ == "__main__":
     newpath = domain
     if not os.path.exists(newpath):
         os.makedirs(newpath)
-    output_base = "output/{}".format(domain)
+    output_base = "{}/{}".format(domain,domain)
     script_path = os.path.dirname(os.path.realpath(__file__))
     secure = args.secure
     bruteforce = args.bruteforce
@@ -498,7 +467,6 @@ if __name__ == "__main__":
     quick = args.quick
     bruteall = args.bruteall
     fresh = args.fresh
-    notify = args.notify
     active = args.active
     noeyewitness = args.noeyewitness
     options()
