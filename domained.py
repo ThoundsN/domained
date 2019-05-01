@@ -192,7 +192,7 @@ def knockpy():
 def amass():
     print("\n\n\033[1;31mRunning Amass \n\033[1;37m")
     amassFileName = "{}_amass.txt".format(output_base)
-    amassCmd = "~/go/bin/amass -d {} -o {}".format(domain, amassFileName)
+    amassCmd = "~/go/bin/amass -brute -min-for-recursive 3  -d {} -o {}".format(domain, amassFileName)
     print("\n\033[1;31mRunning Command: \033[1;37m{}".format(amassCmd))
     os.system(amassCmd)
     print("\n\033[1;31mAmass Complete\033[1;37m")
