@@ -111,7 +111,7 @@ def banner():
 
 
 def runProcess(exe):
-    p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,shell=True)
+    p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     while(True):
         # returns None while subprocess is running
         retcode = p.poll()
