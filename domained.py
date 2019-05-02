@@ -123,9 +123,10 @@ def runProcess(exe):
 def run(exe):
     for line in runProcess(exe.split()):
         line = line.strip()
-        line = line.decode()
         print(line)
         logfile.write(line)
+        logfile.write('\n')
+
 
 
 def sublist3r(brute=False):
