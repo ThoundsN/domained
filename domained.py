@@ -205,7 +205,7 @@ def subfinder():
     word_file = os.path.join(
         script_path, "bin/sublst/all.txt" if bruteall else "bin/sublst/sl-domains.txt"
     )
-    subfinderCmd = "~/go/bin/subfinder -b -w {} -d {} -o {}".format(
+    subfinderCmd = "~/go/src/github.com/subfinder/subfinder/subfinder -b -w {} -d {} -o {} -t 50 -v".format(
             domain,
             word_file,
              subfinderFileName)
@@ -217,7 +217,7 @@ def subfinder():
 def altdns(filename):
     print("\n\n\033[1;31mRunning Altdns \n\033[1;37m")
     altdnsFileName = "{}_altdns.txt".format(output_base)
-    altdnsCmd = "python {} -i {}  -w {}  -r -s {}".format(
+    altdnsCmd = ".{} -i {}  -w {}  -r -s {}".format(
     os.path.join(script_path,"/bin/altdns/altdns.py"),
         filename,
         os.path.join(script_path,"/bin/altdns/words.txt"),
@@ -229,7 +229,7 @@ def altdns(filename):
     time.sleep(1)
     
 def addingaltdns():
-    writeFiles(altdns)
+    writeFiles("altdns")
     allinone()
 
 
@@ -345,7 +345,7 @@ def writeFiles(name):
         # "massdns": ".txt",
         "amass": ".txt",
         "subfinder": ".txt",
-        "altdns":".txt"
+        "altdns": ".txt"
     }
     fileName = output_base + "_" + name + fileExt[name]
 
@@ -396,7 +396,9 @@ def allinone():
 
 
 def subdomainfile():
-    names = ["sublist3r", "knock", "enumall", "amass", "subfinder"]
+    names = ["sublist3r", "knock",  "amass", "subfinder"]
+
+    # "enumall",
 
     for name in names:
         writeFiles(name)
@@ -439,6 +441,7 @@ def options():
                 amass()
                 subfinder()
                 subdomainfile()
+                knockpy()
                 altdns(subdomainUniqueFile)
                 addingaltdns()
             massdns()
