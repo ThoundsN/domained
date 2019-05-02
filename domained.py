@@ -110,6 +110,22 @@ def banner():
 
 
 
+def runProcess(exe):
+    p = subprocess.Popen(exe, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    while(True):
+        # returns None while subprocess is running
+        retcode = p.poll()
+        line = p.stdout.readline()
+        yield line
+        if retcode is not None:
+            break
+
+def run(exe):
+    for line in runProcess(exe.split()):
+        print(line)
+        logfile.write(line)
+        logfile.write("\n")
+
 
 def sublist3r(brute=False):
     print("\n\n\033[1;31mRunning Sublist3r \n\033[1;37m")
@@ -121,7 +137,8 @@ def sublist3r(brute=False):
         sublist3rFileName,
     )
     print("\n\033[1;31mRunning Command: \033[1;37m{}".format(Subcmd))
-    os.system(Subcmd)
+    # os.system(Subcmd)
+    run(Subcmd)
     print("\n\033[1;31mSublist3r Complete\033[1;37m")
     time.sleep(1)
 
@@ -132,7 +149,8 @@ def enumall():
         os.path.join(script_path, "bin/domain/enumall.py"), domain
     )
     print("\n\033[1;31mRunning Command: \033[1;37m{}".format(enumallCMD))
-    os.system(enumallCMD)
+    # os.system(enumallCMD)
+    run(enumallCMD)
     print("\n\033[1;31menumall Complete\033[1;37m")
     time.sleep(1)
 
@@ -156,7 +174,8 @@ def massdns():
         output_base
         )
     print("\n\033[1;31mRunning Command: \033[1;37m{}".format(massdnsCMD))
-    os.system(massdnsCMD)
+    # os.system(massdnsCMD)
+    run(massdnsCMD)
     print("\n\033[1;31mMasscan Complete\033[1;37m")
     time.sleep(1)
 
@@ -167,7 +186,8 @@ def knockpy():
         os.path.join(script_path, "bin/knockpy/knockpy.py"), domain
     )
     print("\n\033[1;31mRunning Command: \033[1;37m {}".format(knockpyCmd))
-    os.system(knockpyCmd)
+    # os.system(knockpyCmd)
+    run(knockpyCmd)
     rootdomainStrip = domain.replace(".", "_")
     knockpyFilenameInit = "{}_knock.csv".format(output_base)
     os.system("mv {}* {}".format(rootdomainStrip, knockpyFilenameInit))
@@ -194,7 +214,8 @@ def amass():
     amassFileName = "{}_amass.txt".format(output_base)
     amassCmd = "~/go/bin/amass -brute -min-for-recursive 3  -d {} -o {}".format(domain, amassFileName)
     print("\n\033[1;31mRunning Command: \033[1;37m{}".format(amassCmd))
-    os.system(amassCmd)
+    # os.system(amassCmd)
+    run(amassCmd)
     print("\n\033[1;31mAmass Complete\033[1;37m")
     time.sleep(1)
 
@@ -210,7 +231,8 @@ def subfinder():
             word_file,
              subfinderFileName)
     print("\n\033[1;31mRunning Command: \033[1;37m{}".format(subfinderCmd))
-    os.system(subfinderCmd)
+    # os.system(subfinderCmd)
+    run(subfinderCmd)
     print("\n\033[1;31msubfinder Complete\033[1;37m")
     time.sleep(1)
 
@@ -224,7 +246,8 @@ def altdns(filename):
         altdnsFileName
     )
     print("\n\033[1;31mRunning Command: \033[1;37m{}".format(altdnsCmd))
-    os.system(altdnsCmd)
+    # os.system(altdnsCmd)
+    run(altdnsCmd)
     print("\n\033[1;31mAltdns Complete\033[1;37m")
     time.sleep(1)
     
@@ -461,6 +484,7 @@ if __name__ == "__main__":
         os.makedirs(newpath)
     output_base = "{}/{}".format(domain,domain)
     script_path = os.path.dirname(os.path.realpath(__file__))
+    logfile = open("{}_log.txt".format(output_base),"w")
     secure = args.secure
     bruteforce = args.bruteforce
     upgrade = args.upgrade
@@ -473,3 +497,4 @@ if __name__ == "__main__":
     active = args.active
     noeyewitness = args.noeyewitness
     options()
+    logfile.close()
