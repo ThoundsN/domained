@@ -213,7 +213,7 @@ def knockpy():
 def amass():
     print("\n\n\033[1;31mRunning Amass \n\033[1;37m")
     amassFileName = "{}_amass.txt".format(output_base)
-    amassCmd = "~/go/bin/amass -brute -min-for-recursive 3  -d {} -o {}".format(domain, amassFileName)
+    amassCmd = "/root/go/bin/amass -brute -min-for-recursive 3  -d {} -o {}".format(domain, amassFileName)
     w = open(amassFileName,"w")
     w.close()
     print("\n\033[1;31mRunning Command: \033[1;37m{}".format(amassCmd))
@@ -229,7 +229,7 @@ def subfinder():
     word_file = os.path.join(
         script_path, "bin/sublst/all.txt" if bruteall else "bin/sublst/sl-domains.txt"
     )
-    subfinderCmd = "~/go/src/github.com/subfinder/subfinder/subfinder -b -w {} -d {} -o {} -t 50 -v".format(
+    subfinderCmd = "/root/go/src/github.com/subfinder/subfinder/subfinder -b -w {} -d {} -o {} -t 50 -v".format(
             domain,
             word_file,
              subfinderFileName)
