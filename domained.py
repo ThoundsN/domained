@@ -230,10 +230,9 @@ def massdns():
 
 def knockpy():
     log("\n\n\033[1;31mRunning Knock \n\033[1;37m")
-    knockpyCmd = "python {} -c {} -w {}".format(
+    knockpyCmd = "python {} -c {} ".format(
         os.path.join(script_path, "bin/knockpy/knockpy/knockpy.py"),
         domain,
-        word_file
     )
     log("\n\033[1;31mRunning Command: \033[1;37m {}".format(knockpyCmd))
     # os.system(knockpyCmd)
@@ -262,7 +261,10 @@ def knockpy():
 def amass():
     log("\n\n\033[1;31mRunning Amass \n\033[1;37m")
     amassFileName = "{}_amass.txt".format(output_base)
-    amassCmd = "/root/go/bin/amass -brute -min-for-recursive 3  -d {} -o {} ".format(domain, amassFileName)
+    amassCmd = "/root/go/bin/amass -brute -w {} -min-for-recursive 3  -d {} -o {} ".format(
+        word_file,
+        domain,
+        amassFileName)
     w = open(amassFileName,"w")
     w.close()
     log("\n\033[1;31mRunning Command: \033[1;37m{}".format(amassCmd))
@@ -505,9 +507,9 @@ def options():
             else:
                 sublist3r()
                 # enumall()
-                amass()
                 subfinder()
                 knockpy()
+                amass()
                 subdomainfile()
                 altdns(subdomainUniqueFile)
                 addingaltdns()
