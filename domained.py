@@ -58,7 +58,7 @@ def get_args():
         "--bruteall", help="Bruteforce JHaddix All", action="store_true", default=False
     )
     parser.add_argument(
-        "--fresh", help="Remove output Folder", action="store_true", default=False
+        "-a","--altdns", help="using altdns", action="store_true", default=False
     )
     parser.add_argument(
         "--notify", help="Notify when script completed", nargs="?", default=False
@@ -117,8 +117,13 @@ def extractip():
     write = open(iplist,'w')
     for x in ip:
         write.write(x+'\n')
-    write.close()
     f.close()
+    read = open(iplist,'r')
+    lines = read.readlines()
+    ipset = set(lines)
+    for ip in ipset:
+        write.write(ip+'\n')
+    write.close()
 
 
 def runProcess(exe):
@@ -306,14 +311,25 @@ def altdns(filename):
         os.path.join(script_path,"bin/altdns/words.txt"),
         altdnsFileName
     )
+    w1 = open(iplist,'w')
+    w2 = open(subdomainAllFile,'w')
+    r = open(altdnsFileName,'r')
+    contents =  r.readlines()
+    for line in contents:
+        line = line.split(':')
+        w1.write(line[1]+'\n')
+        w2.write(line[0]+'\n')
     log("\n\033[1;31mRunning Command: \033[1;37m{}".format(altdnsCmd))
     # os.system(altdnsCmd)
     run(altdnsCmd)
     log("\n\033[1;31mAltdns Complete\033[1;37m")
     time.sleep(1)
-    
+    w1.close()
+    r.close()
+    w2.close()
+
 def addingaltdns():
-    writeFiles("altdns")
+    # writeFiles("altdns")
     allinone()
 
 
@@ -512,18 +528,15 @@ def options():
         upgradeFiles()
     else:
         if domain:
-            if quick:
-                amass()
-                sublist3r()
-            else:
-                sublist3r()
-                # enumall()
-                subfinder()
-                knockpy()
-                amass()
-                subdomainfile()
+            sublist3r()
+            # enumall()
+            subfinder()
+            knockpy()
+            amass()
+            subdomainfile()
+            if altdns:
                 altdns(subdomainUniqueFile)
-                addingaltdns()
+                allinone()
             checkresponse(subdomainUniqueFile)
             massdns()
             extractip()
@@ -539,6 +552,7 @@ if __name__ == "__main__":
     banner()
     args = get_args()
     domain = args.domain
+    altdns= args.altdns
     secure = args.secure
     bruteforce = args.bruteforce
     upgrade = args.upgrade
