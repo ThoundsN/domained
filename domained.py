@@ -113,6 +113,7 @@ def extractip():
     f = open(massdnsoutput,"r")
     s = f.read()
     ip = re.findall(r'[0-9]+(?:\.[0-9]+){3}', s)
+    ip = set(ip)
     write = open(iplist,'w')
     for x in ip:
         write.write(x+'\n')
@@ -242,17 +243,23 @@ def knockpy():
     os.system("mv {}* {}".format(rootdomainStrip, knockpyFilenameInit))
     time.sleep(1)
     knockpySubs = []
+    knockpyipset = set()
     try:
         with open(knockpyFilenameInit, "rb") as f:
             reader = csv.reader(f, delimiter=",")
             for row in reader:
                 knockpySubs.append(row[3])
+                knockpyipset.update(row[1])
+        f2 = open(iplist,'w')
+        for ip in knockpyipset:
+            f2.write(ip+'\n')
         filenameKnocktxt = "{}.txt".format(knockpyFilenameInit)
         f1 = open(filenameKnocktxt, "w")
         for hosts in knockpySubs:
             hosts = "".join(hosts)
             f1.writelines("\n" + hosts)
         f1.close()
+        f2.close()
     except:
         log("\nKnock File Error\n")
     time.sleep(1)
@@ -293,10 +300,10 @@ def subfinder():
 def altdns(filename):
     log("\n\n\033[1;31mRunning Altdns \n\033[1;37m")
     altdnsFileName = "{}_altdns.txt".format(output_base)
-    altdnsCmd = "{} -i {}  -w {}  -o /tmp/altdnspermutation.txt -r  -s {}".format(
+    altdnsCmd = ".{} -i {}  -w {}  -o /tmp/altdnspermutation.txt -r  -s {}".format(
         os.path.join(script_path,"/bin/altdns/altdns.py"),
         filename,
-        os.path.join(script_path,"/bin/altdns/words.txt"),
+        os.path.join(script_path,"bin/altdns/words.txt"),
         altdnsFileName
     )
     log("\n\033[1;31mRunning Command: \033[1;37m{}".format(altdnsCmd))
