@@ -261,10 +261,14 @@ def knockpy():
 def amass():
     log("\n\n\033[1;31mRunning Amass \n\033[1;37m")
     amassFileName = "{}_amass.txt".format(output_base)
-    amassCmd = "/root/go/bin/amass -brute -w {} -min-for-recursive 3  -d {} -o {} ".format(
-        word_file,
-        domain,
-        amassFileName)
+    if bruteforce:
+        amassCmd = "/root/go/bin/amass -brute -w {} -min-for-recursive 3  -d {} -o {} ".format(
+            word_file,
+            domain,
+            amassFileName)
+    else:  amassCmd = "/root/go/bin/amass  -min-for-recursive 3  -d {} -o {} ".format(
+            domain,
+            amassFileName)
     w = open(amassFileName,"w")
     w.close()
     log("\n\033[1;31mRunning Command: \033[1;37m{}".format(amassCmd))
