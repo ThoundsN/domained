@@ -536,7 +536,7 @@ if __name__ == "__main__":
 
     script_path = os.path.dirname(os.path.realpath(__file__))
     output_base = "{}/{}".format(domain,domain)
-    nmapoutputfile = "{}/{}_nmapportscanning.txt".format(output_base)
+    nmapoutputfile = "{}_nmapportscanning.txt".format(output_base)
     responsivefile = "{}_responsive.txt".format(output_base)
     subdomainUniqueFile = "{}_unique.txt".format(output_base)
     subdomainAllFile = "{}_all.txt".format(output_base)
