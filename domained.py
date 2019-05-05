@@ -410,7 +410,6 @@ def writeFiles(name):
     """Writes info of all hosts from subhosts
     """
     subdomainCounter = 0
-    subdomainAllFile = "{}-all.txt".format(output_base)
     fileExt = {
         "sublist3r": ".txt",
         "knock": ".csv.txt",
@@ -445,7 +444,6 @@ def allinone():
     with open(subdomainAllFile, "r") as domainList:
         uniqueDomains = set(domainList)
         domainList.close()
-        subdomainUniqueFile = "{}-unique.txt".format(output_base)
         uniqueDomainsOut = open(subdomainUniqueFile, "w")
         for domains in uniqueDomains:
             domains = domains.replace("\n", "")
