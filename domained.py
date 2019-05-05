@@ -561,7 +561,6 @@ if __name__ == "__main__":
     vpn = args.vpn
     quick = args.quick
     bruteall = args.bruteall
-    fresh = args.fresh
     active = args.active
     noeyewitness = args.noeyewitness
 
