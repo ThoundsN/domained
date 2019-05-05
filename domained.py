@@ -16,16 +16,16 @@
 # # Github - https://github.com/cakinney (Caleb Kinney)
 
 import argparse
-import configparser
 import csv
 import datetime
 import glob
 import os
 import requests
-import smtplib
 import subprocess
 import time
 from signal import signal, alarm, SIGALRM
+import urllib.request as request
+import re
 
 today = datetime.date.today()
 
@@ -77,6 +77,7 @@ def get_args():
 
 
 
+
 def banner():
     print(
         """\033[1;31m
@@ -90,9 +91,9 @@ def banner():
     if (next(glob.iglob(globpath), None)) or (next(glob.iglob(globpath2), None)):
         print("\nThe following files may be left over from failed domained attempts:")
         for file in glob.glob(globpath):
-            print("  - {}".format(file))
+            log("  - {}".format(file))
         for file in glob.glob(globpath2):
-            print("  - {}".format(file))
+            log("  - {}".format(file))
         signal(SIGALRM, lambda x: 1 / 0)
         try:
             alarm(5)
@@ -100,14 +101,24 @@ def banner():
             if RemoveQ.lower() == "y":
                 os.system("rm *.csv")
                 os.system("rm *.lst")
-                print("\nFiles removed\nStarting domained...")
+                log("\nFiles removed\nStarting domained...")
                 time.sleep(5)
             else:
-                print("\nThank you.\nPlease wait...")
+                log("\nThank you.\nPlease wait...")
                 time.sleep(1)
         except:
-            print("\n\nStarting domained...")
+            log("\n\nStarting domained...")
 
+
+def extractip():
+    f = open(massdnsoutput,"r")
+    s = f.read()
+    ip = re.findall(r'[0-9]+(?:\.[0-9]+){3}', s)
+    write = open(iplist,'w')
+    for x in ip:
+        write.write(x+'\n')
+    write.close()
+    f.close()
 
 
 def runProcess(exe):
@@ -128,9 +139,13 @@ def run(exe):
         logfile.write('\n')
 
 
+def log(string):
+    print(string)
+    logfile.write(string)
+
 
 def sublist3r(brute=False):
-    print("\n\n\033[1;31mRunning Sublist3r \n\033[1;37m")
+    log("\n\n\033[1;31mRunning Sublist3r \n\033[1;37m")
     sublist3rFileName = "{}_sublist3r.txt".format(output_base)
     Subcmd = "python {} -v -t 15 {} -d {} -o {}".format(
         os.path.join(script_path, "bin/Sublist3r/sublist3r.py"),
@@ -138,27 +153,59 @@ def sublist3r(brute=False):
         domain,
         sublist3rFileName,
     )
-    print("\n\033[1;31mRunning Command: \033[1;37m{}".format(Subcmd))
+    log("\n\033[1;31mRunning Command: \033[1;37m{}".format(Subcmd))
     # os.system(Subcmd)
     run(Subcmd)
-    print("\n\033[1;31mSublist3r Complete\033[1;37m")
+    log("\n\033[1;31mSublist3r Complete\033[1;37m")
     time.sleep(1)
 
 
+
+def checkresponse(file):
+    log("\n\n\033[1;31mchecking Responsive domains \n\033[1;37m")
+    r = open(file,"r")
+    lines = r.readlines()
+    lines = [x.strip() for x in lines]
+    w = open(responsivefile,"w")
+    for line in lines:
+        if request.urlopen(line).getcode() not in {403,500,401,405}:
+            w.write(line+"\n")
+    w.close()
+
+
+def nmap():
+    log("\n\n\033[1;31mRunning nmap \n\033[1;37m")
+    r = open(iplist,"r")
+    lines= r.readlines()
+    lines = [x.strip() for x in lines]
+    w = open(ipscanningfile,"w")
+    for ip in lines:
+        w.write("<div style=\"font-family: 'Mina', serif;\"><h1>Nmap {} Results</h1></div>\n".format(ip))
+        w.write("<pre>\n")
+        nmapcommand = "nmap -sV -T3 -Pn -p3868,3366,8443,8080,9443,9091,3000,8000,5900,8081,6000,10000,8181,3306,5000,4000,8888,5432,15672,9999,161,4044,7077,4040,9000,8089,443,7447,7080,8880,8983,5673,7443 {} >> {}".format(
+            ip,
+            ipscanningfile
+        )
+        run(nmapcommand)
+        log(nmapcommand)
+        w.write("</pre></div>\n")
+    w.close()
+    r.close()
+
 def enumall():
-    print("\n\n\033[1;31mRunning Enumall \n\033[1;37m")
+    log("\n\n\033[1;31mRunning Enumall \n\033[1;37m")
     enumallCMD = "python {} {}".format(
         os.path.join(script_path, "bin/domain/enumall.py"), domain
     )
-    print("\n\033[1;31mRunning Command: \033[1;37m{}".format(enumallCMD))
+    log("\n\033[1;31mRunning Command: \033[1;37m{}".format(enumallCMD))
     # os.system(enumallCMD)
     run(enumallCMD)
-    print("\n\033[1;31menumall Complete\033[1;37m")
+    log("\n\033[1;31menumall Complete\033[1;37m")
     time.sleep(1)
 
 
 def massdns():
-    print("\n\n\033[1;31mRunning massdns \n\033[1;37m")
+    log("\n\n\033[1;31mRunning massdns \n\033[1;37m")
     # word_file = os.path.join(
     #     script_path, "bin/sublst/all.txt" if bruteall else "bin/sublst/sl-domains.txt"
     # )
@@ -170,24 +217,24 @@ def massdns():
     #     output_base,
     # )
 
-    massdnsCMD = "{} -r resolvers.txt -t A -o S -w {}-massdns-ip.txt {}-unique.txt".format(
+    massdnsCMD = "{} -r resolvers.txt -t A -o S -w {} {}".format(
         os.path.join(script_path, "bin/massdns/bin/massdns"),
-        output_base,
-        output_base
+        massdnsoutput,
+        subdomainUniqueFile
         )
-    print("\n\033[1;31mRunning Command: \033[1;37m{}".format(massdnsCMD))
+    log("\n\033[1;31mRunning Command: \033[1;37m{}".format(massdnsCMD))
     # os.system(massdnsCMD)
     run(massdnsCMD)
-    print("\n\033[1;31mMasscan Complete\033[1;37m")
+    log("\n\033[1;31mMasscan Complete\033[1;37m")
     time.sleep(1)
 
 
 def knockpy():
-    print("\n\n\033[1;31mRunning Knock \n\033[1;37m")
+    log("\n\n\033[1;31mRunning Knock \n\033[1;37m")
     knockpyCmd = "python {} -c {}".format(
-        os.path.join(script_path, "bin/knockpy/knockpy.py"), domain
+        os.path.join(script_path, "bin/knockpy/knockpy/knockpy.py"), domain
     )
-    print("\n\033[1;31mRunning Command: \033[1;37m {}".format(knockpyCmd))
+    log("\n\033[1;31mRunning Command: \033[1;37m {}".format(knockpyCmd))
     # os.system(knockpyCmd)
     run(knockpyCmd)
     rootdomainStrip = domain.replace(".", "_")
@@ -207,25 +254,25 @@ def knockpy():
             f1.writelines("\n" + hosts)
         f1.close()
     except:
-        print("\nKnock File Error\n")
+        log("\nKnock File Error\n")
     time.sleep(1)
 
 
 def amass():
-    print("\n\n\033[1;31mRunning Amass \n\033[1;37m")
+    log("\n\n\033[1;31mRunning Amass \n\033[1;37m")
     amassFileName = "{}_amass.txt".format(output_base)
-    amassCmd = "/root/go/bin/amass -brute -min-for-recursive 3  -d {} -o {}".format(domain, amassFileName)
+    amassCmd = "/root/go/bin/amass -brute -min-for-recursive 3  -d {} -o {} -v".format(domain, amassFileName)
     w = open(amassFileName,"w")
     w.close()
-    print("\n\033[1;31mRunning Command: \033[1;37m{}".format(amassCmd))
+    log("\n\033[1;31mRunning Command: \033[1;37m{}".format(amassCmd))
     # os.system(amassCmd)
     run(amassCmd)
-    print("\n\033[1;31mAmass Complete\033[1;37m")
+    log("\n\033[1;31mAmass Complete\033[1;37m")
     time.sleep(1)
 
 
 def subfinder():
-    print("\n\n\033[1;31mRunning Subfinder \n\033[1;37m")
+    log("\n\n\033[1;31mRunning Subfinder \n\033[1;37m")
     subfinderFileName = "{}_subfinder.txt".format(output_base)
     word_file = os.path.join(
         script_path, "bin/sublst/all.txt" if bruteall else "bin/sublst/sl-domains.txt"
@@ -234,25 +281,25 @@ def subfinder():
             domain,
             word_file,
              subfinderFileName)
-    print("\n\033[1;31mRunning Command: \033[1;37m{}".format(subfinderCmd))
+    log("\n\033[1;31mRunning Command: \033[1;37m{}".format(subfinderCmd))
     # os.system(subfinderCmd)
     run(subfinderCmd)
-    print("\n\033[1;31msubfinder Complete\033[1;37m")
+    log("\n\033[1;31msubfinder Complete\033[1;37m")
     time.sleep(1)
 
 def altdns(filename):
-    print("\n\n\033[1;31mRunning Altdns \n\033[1;37m")
+    log("\n\n\033[1;31mRunning Altdns \n\033[1;37m")
     altdnsFileName = "{}_altdns.txt".format(output_base)
-    altdnsCmd = ".{} -i {}  -w {}  -r -s {}".format(
-    os.path.join(script_path,"/bin/altdns/altdns.py"),
+    altdnsCmd = "{} -i {}  -w {}  -o /tmp/altdnspermutation.txt -r  -s {}".format(
+        os.path.join(script_path,"/bin/altdns/altdns.py"),
         filename,
         os.path.join(script_path,"/bin/altdns/words.txt"),
         altdnsFileName
     )
-    print("\n\033[1;31mRunning Command: \033[1;37m{}".format(altdnsCmd))
+    log("\n\033[1;31mRunning Command: \033[1;37m{}".format(altdnsCmd))
     # os.system(altdnsCmd)
     run(altdnsCmd)
-    print("\n\033[1;31mAltdns Complete\033[1;37m")
+    log("\n\033[1;31mAltdns Complete\033[1;37m")
     time.sleep(1)
     
 def addingaltdns():
@@ -261,7 +308,7 @@ def addingaltdns():
 
 
 def eyewitness(filename):
-    print("\n\n\033[1;31mRunning EyeWitness  \n\033[1;37m")
+    log("\n\n\033[1;31mRunning EyeWitness  \n\033[1;37m")
     EWHTTPScriptIPS = "python {} -f {} {} --no-prompt --web  -d {}-{}-EW".format(
         os.path.join(script_path, "bin/EyeWitness/EyeWitness.py"),
         filename,
@@ -270,15 +317,15 @@ def eyewitness(filename):
         time.strftime("%m-%d-%y-%H-%M"),
     )
     if vpn:
-        print(
+        log(
             "\n\033[1;31mIf not connected to VPN manually run the following command on reconnect:\n\033[1;37m{}".format(
                 EWHTTPScriptIPS
             )
         )
         vpncheck()
-    print("\n\033[1;31mRunning Command: \033[1;37m{}".format(EWHTTPScriptIPS))
+    log("\n\033[1;31mRunning Command: \033[1;37m{}".format(EWHTTPScriptIPS))
     os.system(EWHTTPScriptIPS)
-    print("\a")
+    log("\a")
 
 
 def upgradeFiles():
@@ -287,76 +334,76 @@ def upgradeFiles():
     if not os.path.exists(binpath):
         os.makedirs(binpath)
     else:
-        print("Removing old bin directory: {}".format(binpath))
+        log("Removing old bin directory: {}".format(binpath))
         os.system("rm -rf {}".format(binpath))
         os.makedirs(binpath)
-    print("Changing into domained home: {}".format(script_path))
+    log("Changing into domained home: {}".format(script_path))
     os.chdir(script_path)
     unameChk = str(subprocess.check_output(["uname", "-am"]))
     if "kali" not in unameChk:
-        print("\n\033[1;31mKali Linux Recommended!\033[1;37m")
+        log("\n\033[1;31mKali Linux Recommended!\033[1;37m")
         time.sleep(1)
     sublist3rUpgrade = (
         "git clone https://github.com/aboul3la/Sublist3r.git ./bin/Sublist3r"
     )
-    print("\n\033[1;31mInstalling Sublist3r \033[1;37m")
+    log("\n\033[1;31mInstalling Sublist3r \033[1;37m")
     os.system(sublist3rUpgrade)
     subInstallReq = "pip install -r bin/Sublist3r/requirements.txt"
     os.system(subInstallReq)
-    print("Sublist3r Installed\n")
+    log("Sublist3r Installed\n")
     eyeWitnessUpgrade = "git clone https://github.com/FortyNorthSecurity/EyeWitness.git ./bin/EyeWitness"
-    print("\n\033[1;31mInstalling EyeWitness \033[1;37m" + eyeWitnessUpgrade)
+    log("\n\033[1;31mInstalling EyeWitness \033[1;37m" + eyeWitnessUpgrade)
     os.system(eyeWitnessUpgrade)
     eyeInstallReq = "bash bin/EyeWitness/setup/setup.sh"
-    print("\n\033[1;31mRunning Command: \033[1;37m")
+    log("\n\033[1;31mRunning Command: \033[1;37m")
     os.system(eyeInstallReq)
     cpphantomjs = "cp phantomjs ./bin/EyeWitness/bin/"
     os.system(cpphantomjs)
     movephantomjs = "mv phantomjs bin/"
     os.system(movephantomjs)
-    print("\nEyeWitness Installed\n")
+    log("\nEyeWitness Installed\n")
     enumallUpgrade = "git clone https://github.com/jhaddix/domain.git ./bin/domain"
-    print("\n\033[1;31mInstalling Enumall \033[1;37m")
-    print("\nenumall Installed\n")
+    log("\n\033[1;31mInstalling Enumall \033[1;37m")
+    log("\nenumall Installed\n")
     os.system(enumallUpgrade)
     knockpyUpgrade = "git clone https://github.com/guelfoweb/knock.git ./bin/knockpy"
-    print("\n\033[1;31mInstalling Knock \033[1;37m")
+    log("\n\033[1;31mInstalling Knock \033[1;37m")
     os.system(knockpyUpgrade)
-    print("\nKnockpy Installed\n")
+    log("\nKnockpy Installed\n")
     sublstUpgrade = "git clone https://gist.github.com/jhaddix/86a06c5dc309d08580a018c66354a056 ./bin/sublst"
-    print("\n\033[1;31mCopying JHaddix All Domain List: \033[1;37m")
-    print("\nJHaddix All Domain List Installed\n")
+    log("\n\033[1;31mCopying JHaddix All Domain List: \033[1;37m")
+    log("\nJHaddix All Domain List Installed\n")
     os.system(sublstUpgrade)
     SLsublstUpgrade = "wget -O ./bin/sublst/sl-domains.txt https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/DNS/sortedcombined-knock-dnsrecon-fierce-reconng.txt"
-    print("\n\033[1;31mCopying SecList Domain List \033[1;37m")
-    print("\nSecList Domain List Installed\n")
+    log("\n\033[1;31mCopying SecList Domain List \033[1;37m")
+    log("\nSecList Domain List Installed\n")
     os.system(SLsublstUpgrade)
     subbruteUpgrade = "git clone https://github.com/TheRook/subbrute.git ./bin/subbrute"
-    print("\n\033[1;31mInstalling Subbrute \033[1;37m")
+    log("\n\033[1;31mInstalling Subbrute \033[1;37m")
     os.system(subbruteUpgrade)
-    print("\nSubbrute Installed\n")
+    log("\nSubbrute Installed\n")
     amassUpgrade = "go get -u github.com/OWASP/Amass/..."
-    print("\n\033[1;31mInstalling Amass \033[1;37m")
+    log("\n\033[1;31mInstalling Amass \033[1;37m")
     os.system(amassUpgrade)
     subfinderUpgrade = "go get -u github.com/subfinder/subfinder"
-    print("\n\033[1;31mInstalling Subfinder \033[1;37m")
+    log("\n\033[1;31mInstalling Subfinder \033[1;37m")
     os.system(subfinderUpgrade)
     massdnsUpgrade = "git clone --branch v0.2 --single-branch https://github.com/blechschmidt/massdns ./bin/massdns"
-    print("\n\033[1;31mInstalling massdns \033[1;37m")
+    log("\n\033[1;31mInstalling massdns \033[1;37m")
     os.system(massdnsUpgrade)
     massdnsMake = "make -C ./bin/massdns"
     os.system(massdnsMake)
-    print("\nMassdns Installed\n")
+    log("\nMassdns Installed\n")
     os.system("cp ./bin/subbrute/resolvers.txt ./")
     if "kali" in unameChk:
         reconNGInstall = "apt-get install recon-ng"
-        print("\n\033[1;31mInstalling Recon-ng \033[1;37m")
+        log("\n\033[1;31mInstalling Recon-ng \033[1;37m")
         os.system(reconNGInstall)
-        print("\nRecon-ng Installed\n")
+        log("\nRecon-ng Installed\n")
     else:
-        print("Please install Recon-ng - https://bitbucket.org/LaNMaSteR53/")
-    print("\n\033[1;31mAll tools installed \033[1;37m")
-    print("Changing back to old working directory: {}".format(old_wd))
+        log("Please install Recon-ng - https://bitbucket.org/LaNMaSteR53/")
+    log("\n\033[1;31mAll tools installed \033[1;37m")
+    log("Changing back to old working directory: {}".format(old_wd))
     os.chdir(old_wd)
 
 
@@ -376,7 +423,7 @@ def writeFiles(name):
     }
     fileName = output_base + "_" + name + fileExt[name]
 
-    print("\n Opening %s File" % name)
+    log("\n Opening %s File" % name)
     try:
         with open(fileName, "r") as f:
             SubHosts = f.read().splitlines()
@@ -388,15 +435,14 @@ def writeFiles(name):
                 f.writelines("\n" + hosts)
                 subdomainCounter += 1
         os.remove(fileName)
-        print("\n%s Subdomains discovered by %s" % (subdomainCounter, name))
+        log("\n%s Subdomains discovered by %s" % (subdomainCounter, name))
     except:
-        print("\nError Opening %s File!\n" % name)
+        log("\nError Opening %s File!\n" % name)
     return subdomainCounter
 
 
 def allinone():
-    subdomainAllFile = "{}-all.txt".format(output_base)
-    print("\nCombining Domains Lists\n")
+    log("\nCombining Domains Lists\n")
     with open(subdomainAllFile, "r") as domainList:
         uniqueDomains = set(domainList)
         domainList.close()
@@ -414,12 +460,12 @@ def allinone():
                         uniqueDomainsOut.writelines("http://{}:8080\n".format(domains))
     time.sleep(1)
     # rootdomainStrip = domain.replace(".", "_")
-    # print("\nCleaning Up Old Files\n")
+    # log("\nCleaning Up Old Files\n")
     # try:
     #     os.system("rm {}*".format(domain))
     #     os.system("rm {}*".format(rootdomainStrip))
     # except:
-    #     print("\nError Removing Files!\n")
+    #     log("\nError Removing Files!\n")
 
 
 def subdomainfile():
@@ -439,9 +485,9 @@ def vpncheck():
     vpnck = requests.get("https://ifconfig.co/json")
     # Change "City" to your city")
     if "City" in vpnck.text:
-        print("\n\033[1;31mNot connected via VPN \033[1;37m")
-        print("\n{}".format(vpnck.content))
-        print("\n\033[1;31mQuitting domained... \033[1;37m")
+        log("\n\033[1;31mNot connected via VPN \033[1;37m")
+        log("\n{}".format(vpnck.content))
+        log("\n\033[1;31mQuitting domained... \033[1;37m")
         quit()
     else:
         print("\n\033[1;31mConnected via VPN \033[1;37m")
@@ -450,7 +496,6 @@ def vpncheck():
 
 
 def options():
-    subdomainUniqueFile = "{}-unique.txt".format(output_base)
     if vpn:
         vpncheck()
     if install:
@@ -467,13 +512,16 @@ def options():
                 # enumall()
                 amass()
                 subfinder()
-                subdomainfile()
                 knockpy()
+                subdomainfile()
                 altdns(subdomainUniqueFile)
                 addingaltdns()
+            checkresponse(subdomainUniqueFile)
             massdns()
+            extractip()
+            nmap()
             if not noeyewitness:
-                eyewitness(subdomainUniqueFile)
+                eyewitness(responsivefile)
         else:
             print("\nPlease provide a domain. Ex. -d example.com")
     print("\n\033[1;34mAll your subdomain are belong to us\033[1;37m")
@@ -486,9 +534,18 @@ if __name__ == "__main__":
     newpath = domain
     if not os.path.exists(newpath):
         os.makedirs(newpath)
-    output_base = "{}/{}".format(domain,domain)
+
     script_path = os.path.dirname(os.path.realpath(__file__))
+    output_base = "{}/{}".format(domain,domain)
+    nmapoutputfile = "{}/{}_nmapportscanning.txt".format(output_base)
+    responsivefile = "{}_responsive.txt".format(output_base)
+    subdomainUniqueFile = "{}_unique.txt".format(output_base)
+    subdomainAllFile = "{}_all.txt".format(output_base)
     logfile = open("{}_log.txt".format(output_base),"w")
+    massdnsoutput = "{}_massdnsoutput.txt".format(output_base)
+    iplist = "{}_iplist.txt".format(output_base)
+    ipscanningfile = "{}_ipscanning.html".format(output_base)
+
     secure = args.secure
     bruteforce = args.bruteforce
     upgrade = args.upgrade
