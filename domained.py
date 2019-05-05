@@ -24,7 +24,6 @@ import requests
 import subprocess
 import time
 from signal import signal, alarm, SIGALRM
-import urllib.request as request
 import re
 
 today = datetime.date.today()
@@ -168,7 +167,7 @@ def checkresponse(file):
     lines = [x.strip() for x in lines]
     w = open(responsivefile,"w")
     for line in lines:
-        if request.urlopen(line).getcode() not in {403,500,401,405}:
+        if requests.urlopen(line).getcode() not in {403,500,401,405}:
             w.write(line+"\n")
     w.close()
 
