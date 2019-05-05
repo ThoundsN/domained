@@ -230,8 +230,10 @@ def massdns():
 
 def knockpy():
     log("\n\n\033[1;31mRunning Knock \n\033[1;37m")
-    knockpyCmd = "python {} -c {}".format(
-        os.path.join(script_path, "bin/knockpy/knockpy/knockpy.py"), domain
+    knockpyCmd = "python {} -c {} -w {}".format(
+        os.path.join(script_path, "bin/knockpy/knockpy/knockpy.py"),
+        domain,
+        word_file
     )
     log("\n\033[1;31mRunning Command: \033[1;37m {}".format(knockpyCmd))
     # os.system(knockpyCmd)
@@ -260,7 +262,7 @@ def knockpy():
 def amass():
     log("\n\n\033[1;31mRunning Amass \n\033[1;37m")
     amassFileName = "{}_amass.txt".format(output_base)
-    amassCmd = "/root/go/bin/amass -brute -min-for-recursive 3  -d {} -o {} -v".format(domain, amassFileName)
+    amassCmd = "/root/go/bin/amass -brute -min-for-recursive 3  -d {} -o {} ".format(domain, amassFileName)
     w = open(amassFileName,"w")
     w.close()
     log("\n\033[1;31mRunning Command: \033[1;37m{}".format(amassCmd))
@@ -273,12 +275,8 @@ def amass():
 def subfinder():
     log("\n\n\033[1;31mRunning Subfinder \n\033[1;37m")
     subfinderFileName = "{}_subfinder.txt".format(output_base)
-    word_file = os.path.join(
-        script_path, "bin/sublst/all.txt" if bruteall else "bin/sublst/sl-domains.txt"
-    )
-    subfinderCmd = "/root/go/src/github.com/subfinder/subfinder/subfinder -b -w {} -d {} -o {} -t 50 -v".format(
+    subfinderCmd = "/root/go/src/github.com/subfinder/subfinder/subfinder  -d {} -o {} -t 50 -v".format(
             domain,
-            word_file,
              subfinderFileName)
     log("\n\033[1;31mRunning Command: \033[1;37m{}".format(subfinderCmd))
     # os.system(subfinderCmd)
@@ -528,6 +526,18 @@ if __name__ == "__main__":
     banner()
     args = get_args()
     domain = args.domain
+    secure = args.secure
+    bruteforce = args.bruteforce
+    upgrade = args.upgrade
+    install = args.install
+    ports = args.ports
+    vpn = args.vpn
+    quick = args.quick
+    bruteall = args.bruteall
+    fresh = args.fresh
+    active = args.active
+    noeyewitness = args.noeyewitness
+
     newpath = domain
     if not os.path.exists(newpath):
         os.makedirs(newpath)
@@ -542,17 +552,9 @@ if __name__ == "__main__":
     massdnsoutput = "{}_massdnsoutput.txt".format(output_base)
     iplist = "{}_iplist.txt".format(output_base)
     ipscanningfile = "{}_ipscanning.html".format(output_base)
+    word_file = os.path.join(
+        script_path, "bin/sublst/all.txt" if bruteall else "bin/sublst/sl-domains.txt"
+    )
 
-    secure = args.secure
-    bruteforce = args.bruteforce
-    upgrade = args.upgrade
-    install = args.install
-    ports = args.ports
-    vpn = args.vpn
-    quick = args.quick
-    bruteall = args.bruteall
-    fresh = args.fresh
-    active = args.active
-    noeyewitness = args.noeyewitness
     options()
     logfile.close()
