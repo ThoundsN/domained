@@ -27,9 +27,10 @@ import subprocess
 import time
 from signal import signal, alarm, SIGALRM
 import re
+import ssl
 
 today = datetime.date.today()
-
+ssl.match_hostname = lambda cert, hostname: True
 
 def get_args():
     parser = argparse.ArgumentParser(description="domained")
@@ -174,9 +175,12 @@ def checkresponse(file):
     lines = r.readlines()
     lines = [x.strip() for x in lines]
     w = open(responsivefile,"w")
-    for line in lines:
-        if urllib.urlopen(line).getcode() not in {403,500,401,405,502}:
-            w.write(line+"\n")
+    try:
+        for line in lines:
+            if urllib.urlopen(line).getcode() not in {403,500,401,405,502}:
+                w.write(line+"\n")
+    except Exception:
+        pass
     w.close()
 
 
@@ -252,11 +256,11 @@ def knockpy():
     knockpySubs = []
     knockpyipset = set()
     try:
-        with open(knockpyFilenameInit, "rb") as f:
+        with open(knockpyFilenameInit) as f:
             reader = csv.reader(f, delimiter=",")
             for row in reader:
                 knockpySubs.append(row[3])
-                knockpyipset.update(row[1])
+                knockpyipset.add(row[0])
         f2 = open(iplist,'w')
         for ip in knockpyipset:
             f2.write(ip+'\n')
