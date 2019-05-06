@@ -146,6 +146,10 @@ def run(exe):
         logfile.write(line)
         logfile.write('\n')
 
+def runcurl(exe):
+    code = runProcess(exe.split())
+    return int(code)
+
 
 def log(string):
     print(string)
@@ -177,12 +181,30 @@ def checkresponse(file):
     w = open(responsivefile,"w")
     try:
         for line in lines:
-            if urllib.urlopen(line).getcode() not in {403,500,401,405,502}:
+            if urllib.urlopen(line).getcode() not in {403,500,401,502,000}:
                 w.write(line+"\n")
     except Exception:
+        log(Exception)
         pass
     w.close()
 
+def curlcheck(file):
+    log("\n\n\033[1;31mchecking Responsive domains \n\033[1;37m")
+    r = open(file,"r")
+    lines = r.readlines()
+    lines = [x.strip() for x in lines]
+    w = open(responsivefile,"w")
+    try:
+        for line in lines:
+            curlcmd = "curl --write-out \"%{http_code}\" --silent --output /dev/null -m 5 {}".format(line)
+            log(curlcmd)
+            code = runcurl(curlcmd)
+            if code not in {000,500,502}:
+                w.write(line + "\n")
+    except Exception:
+        log(Exception)
+        pass
+        w.close()
 
 def nmap():
     log("\n\n\033[1;31mRunning nmap \n\033[1;37m")
@@ -257,12 +279,13 @@ def knockpy():
     knockpyipset = set()
     try:
         with open(knockpyFilenameInit) as f:
-            reader = csv.reader(f, delimiter=",")
+            reader = csv.reader(f)
             for row in reader:
                 knockpySubs.append(row[3])
                 knockpyipset.add(row[0])
         f2 = open(iplist,'w')
         for ip in knockpyipset:
+            log(ip)
             f2.write(ip+'\n')
         filenameKnocktxt = "{}.txt".format(knockpyFilenameInit)
         f1 = open(filenameKnocktxt, "w")
@@ -543,7 +566,8 @@ def options():
             if altdns:
                 altdns(subdomainUniqueFile)
                 allinone()
-            checkresponse(subdomainUniqueFile)
+            # checkresponse(subdomainUniqueFile)
+            curlcheck(subdomainUniqueFile)
             massdns()
             extractip()
             nmap()
