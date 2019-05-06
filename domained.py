@@ -183,8 +183,8 @@ def checkresponse(file):
         for line in lines:
             if urllib.urlopen(line).getcode() not in {403,500,401,502,000}:
                 w.write(line+"\n")
-    except Exception:
-        log(Exception)
+    except Exception as e :
+        log(str(e))
         pass
     w.close()
 
