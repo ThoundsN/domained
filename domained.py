@@ -201,8 +201,8 @@ def curlcheck(file):
             code = runcurl(curlcmd)
             if code not in {000,500,502}:
                 w.write(line + "\n")
-    except Exception:
-        log(Exception)
+    except Exception as e:
+        log(str(e))
         pass
         w.close()
 
