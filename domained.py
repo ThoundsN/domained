@@ -20,6 +20,8 @@ import csv
 import datetime
 import glob
 import os
+import urllib
+
 import requests
 import subprocess
 import time
@@ -173,7 +175,7 @@ def checkresponse(file):
     lines = [x.strip() for x in lines]
     w = open(responsivefile,"w")
     for line in lines:
-        if requests.urlopen(line).getcode() not in {403,500,401,405}:
+        if urllib.urlopen(line).getcode() not in {403,500,401,405,502}:
             w.write(line+"\n")
     w.close()
 
