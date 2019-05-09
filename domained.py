@@ -392,73 +392,73 @@ def upgradeFiles():
         log("Removing old bin directory: {}".format(binpath))
         os.system("rm -rf {}".format(binpath))
         os.makedirs(binpath)
-    log("Changing into domained home: {}".format(script_path))
+    print("Changing into domained home: {}".format(script_path))
     os.chdir(script_path)
     unameChk = str(subprocess.check_output(["uname", "-am"]))
     if "kali" not in unameChk:
-        log("\n\033[1;31mKali Linux Recommended!\033[1;37m")
+        print("\n\033[1;31mKali Linux Recommended!\033[1;37m")
         time.sleep(1)
     sublist3rUpgrade = (
         "git clone https://github.com/aboul3la/Sublist3r.git ./bin/Sublist3r"
     )
-    log("\n\033[1;31mInstalling Sublist3r \033[1;37m")
+    print("\n\033[1;31mInstalling Sublist3r \033[1;37m")
     os.system(sublist3rUpgrade)
     subInstallReq = "pip install -r bin/Sublist3r/requirements.txt"
     os.system(subInstallReq)
-    log("Sublist3r Installed\n")
+    print("Sublist3r Installed\n")
     eyeWitnessUpgrade = "git clone https://github.com/FortyNorthSecurity/EyeWitness.git ./bin/EyeWitness"
-    log("\n\033[1;31mInstalling EyeWitness \033[1;37m" + eyeWitnessUpgrade)
+    print("\n\033[1;31mInstalling EyeWitness \033[1;37m" + eyeWitnessUpgrade)
     os.system(eyeWitnessUpgrade)
     eyeInstallReq = "bash bin/EyeWitness/setup/setup.sh"
-    log("\n\033[1;31mRunning Command: \033[1;37m")
+    print("\n\033[1;31mRunning Command: \033[1;37m")
     os.system(eyeInstallReq)
     cpphantomjs = "cp phantomjs ./bin/EyeWitness/bin/"
     os.system(cpphantomjs)
     movephantomjs = "mv phantomjs bin/"
     os.system(movephantomjs)
-    log("\nEyeWitness Installed\n")
+    print("\nEyeWitness Installed\n")
     enumallUpgrade = "git clone https://github.com/jhaddix/domain.git ./bin/domain"
-    log("\n\033[1;31mInstalling Enumall \033[1;37m")
-    log("\nenumall Installed\n")
+    print("\n\033[1;31mInstalling Enumall \033[1;37m")
+    print("\nenumall Installed\n")
     os.system(enumallUpgrade)
     knockpyUpgrade = "git clone https://github.com/guelfoweb/knock.git ./bin/knockpy"
-    log("\n\033[1;31mInstalling Knock \033[1;37m")
+    print("\n\033[1;31mInstalling Knock \033[1;37m")
     os.system(knockpyUpgrade)
-    log("\nKnockpy Installed\n")
+    print("\nKnockpy Installed\n")
     sublstUpgrade = "git clone https://gist.github.com/jhaddix/86a06c5dc309d08580a018c66354a056 ./bin/sublst"
-    log("\n\033[1;31mCopying JHaddix All Domain List: \033[1;37m")
-    log("\nJHaddix All Domain List Installed\n")
+    print("\n\033[1;31mCopying JHaddix All Domain List: \033[1;37m")
+    print("\nJHaddix All Domain List Installed\n")
     os.system(sublstUpgrade)
     SLsublstUpgrade = "wget -O ./bin/sublst/sl-domains.txt https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/DNS/sortedcombined-knock-dnsrecon-fierce-reconng.txt"
-    log("\n\033[1;31mCopying SecList Domain List \033[1;37m")
-    log("\nSecList Domain List Installed\n")
+    print("\n\033[1;31mCopying SecList Domain List \033[1;37m")
+    print("\nSecList Domain List Installed\n")
     os.system(SLsublstUpgrade)
     subbruteUpgrade = "git clone https://github.com/TheRook/subbrute.git ./bin/subbrute"
-    log("\n\033[1;31mInstalling Subbrute \033[1;37m")
+    print("\n\033[1;31mInstalling Subbrute \033[1;37m")
     os.system(subbruteUpgrade)
-    log("\nSubbrute Installed\n")
+    print("\nSubbrute Installed\n")
     amassUpgrade = "go get -u github.com/OWASP/Amass/..."
-    log("\n\033[1;31mInstalling Amass \033[1;37m")
+    print("\n\033[1;31mInstalling Amass \033[1;37m")
     os.system(amassUpgrade)
     subfinderUpgrade = "go get -u github.com/subfinder/subfinder"
-    log("\n\033[1;31mInstalling Subfinder \033[1;37m")
+    print("\n\033[1;31mInstalling Subfinder \033[1;37m")
     os.system(subfinderUpgrade)
     massdnsUpgrade = "git clone --branch v0.2 --single-branch https://github.com/blechschmidt/massdns ./bin/massdns"
-    log("\n\033[1;31mInstalling massdns \033[1;37m")
+    print("\n\033[1;31mInstalling massdns \033[1;37m")
     os.system(massdnsUpgrade)
     massdnsMake = "make -C ./bin/massdns"
     os.system(massdnsMake)
-    log("\nMassdns Installed\n")
+    print("\nMassdns Installed\n")
     os.system("cp ./bin/subbrute/resolvers.txt ./")
     if "kali" in unameChk:
         reconNGInstall = "apt-get install recon-ng"
-        log("\n\033[1;31mInstalling Recon-ng \033[1;37m")
+        print("\n\033[1;31mInstalling Recon-ng \033[1;37m")
         os.system(reconNGInstall)
-        log("\nRecon-ng Installed\n")
+        print("\nRecon-ng Installed\n")
     else:
-        log("Please install Recon-ng - https://bitbucket.org/LaNMaSteR53/")
-    log("\n\033[1;31mAll tools installed \033[1;37m")
-    log("Changing back to old working directory: {}".format(old_wd))
+        print("Please install Recon-ng - https://bitbucket.org/LaNMaSteR53/")
+    print("\n\033[1;31mAll tools installed \033[1;37m")
+    print("Changing back to old working directory: {}".format(old_wd))
     os.chdir(old_wd)
 
 
@@ -592,6 +592,7 @@ if __name__ == "__main__":
 
     newpath = domain
 
+
     script_path = os.path.dirname(os.path.realpath(__file__))
     output_base = "{}/{}".format(domain, domain)
     nmapoutputfile = "{}_nmapportscanning.txt".format(output_base)
@@ -604,6 +605,7 @@ if __name__ == "__main__":
     word_file = os.path.join(
         script_path, "bin/sublst/all.txt" if bruteall else "bin/sublst/sl-domains.txt"
     )
+    logfile = open("{}_log.txt".format(output_base), "w")
 
     if install or upgrade:
         upgradeFiles()
@@ -613,7 +615,6 @@ if __name__ == "__main__":
             os.makedirs(newpath)
 
 
-        logfile = open("{}_log.txt".format(output_base), "w")
 
         options()
         logfile.close()
