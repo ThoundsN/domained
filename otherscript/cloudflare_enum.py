@@ -208,16 +208,18 @@ class cloudflare_enum:
         return return_dict
 
     def get_creds(self):
-        username = sys.argv[1]
-        password = getpass.getpass('Provide your cloudflare password:')
+        username = "inthebybyby@gmail.com"
+        password = "hnZwL8sPwzM5nSw"
         return username,password 
 
 if __name__ == "__main__":
     if len( sys.argv ) < 2:
-        print( "Usage: " + sys.argv[0] + " username@email.com domain.com" )
+        print( "Usage: " + sys.argv[0] + "  domain.com" )
     else:
+        domain = sys.argv[1]
+        output_base = "{}/{}".format(domain, domain)
         cloud = cloudflare_enum()
         username,password = cloud.get_creds()
         cloud.print_banner()
         cloud.log_in(username,password)
-        cloud.get_spreadsheet(sys.argv[2])
+        cloud.get_spreadsheet(domain)
