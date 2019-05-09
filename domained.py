@@ -389,7 +389,7 @@ def upgradeFiles():
     if not os.path.exists(binpath):
         os.makedirs(binpath)
     else:
-        log("Removing old bin directory: {}".format(binpath))
+        print("Removing old bin directory: {}".format(binpath))
         os.system("rm -rf {}".format(binpath))
         os.makedirs(binpath)
     print("Changing into domained home: {}".format(script_path))
