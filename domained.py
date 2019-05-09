@@ -605,7 +605,6 @@ if __name__ == "__main__":
     word_file = os.path.join(
         script_path, "bin/sublst/all.txt" if bruteall else "bin/sublst/sl-domains.txt"
     )
-    logfile = open("{}_log.txt".format(output_base), "w")
 
     if install or upgrade:
         upgradeFiles()
@@ -614,7 +613,7 @@ if __name__ == "__main__":
         if not os.path.exists(newpath):
             os.makedirs(newpath)
 
-
+        logfile = open("{}_log.txt".format(output_base), "w")
 
         options()
         logfile.close()
