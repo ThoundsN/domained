@@ -592,6 +592,19 @@ if __name__ == "__main__":
 
     newpath = domain
 
+    script_path = os.path.dirname(os.path.realpath(__file__))
+    output_base = "{}/{}".format(domain, domain)
+    nmapoutputfile = "{}_nmapportscanning.txt".format(output_base)
+    responsivefile = "{}_responsive.txt".format(output_base)
+    subdomainUniqueFile = "{}_unique.txt".format(output_base)
+    subdomainAllFile = "{}_all.txt".format(output_base)
+    massdnsoutput = "{}_massdnsoutput.txt".format(output_base)
+    iplist = "{}_iplist.txt".format(output_base)
+    ipscanningfile = "{}_ipscanning.html".format(output_base)
+    word_file = os.path.join(
+        script_path, "bin/sublst/all.txt" if bruteall else "bin/sublst/sl-domains.txt"
+    )
+
     if install or upgrade:
         upgradeFiles()
     else:
@@ -599,19 +612,8 @@ if __name__ == "__main__":
         if not os.path.exists(newpath):
             os.makedirs(newpath)
 
-        script_path = os.path.dirname(os.path.realpath(__file__))
-        output_base = "{}/{}".format(domain, domain)
-        nmapoutputfile = "{}_nmapportscanning.txt".format(output_base)
-        responsivefile = "{}_responsive.txt".format(output_base)
-        subdomainUniqueFile = "{}_unique.txt".format(output_base)
-        subdomainAllFile = "{}_all.txt".format(output_base)
+
         logfile = open("{}_log.txt".format(output_base), "w")
-        massdnsoutput = "{}_massdnsoutput.txt".format(output_base)
-        iplist = "{}_iplist.txt".format(output_base)
-        ipscanningfile = "{}_ipscanning.html".format(output_base)
-        word_file = os.path.join(
-            script_path, "bin/sublst/all.txt" if bruteall else "bin/sublst/sl-domains.txt"
-        )
 
         options()
         logfile.close()
